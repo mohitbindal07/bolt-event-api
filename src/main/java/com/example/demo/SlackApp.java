@@ -27,7 +27,35 @@ public class SlackApp {
         	logger.info("app mention event executed with channel name {}",payload.getEvent().getChannel());
         	logger.info("app mention event executed with username {}",payload.getEvent().getUsername());
         	//logger.info("app mention event executed bot profile name {}",payload.getEvent().getBotProfile().getName());
-            return ctx.ack();
+        	 try {
+        		 AppMentionEvent event = payload.getEvent();
+                 logger.info("app mention event hello executed with event  {} :",event);
+                 logger.info("app mention event hello executed with bot token  {} :",ctx.getBotToken());
+                 logger.info("app mention event hello executed with channel {} :",event.getChannel());
+                 // Call the chat.postMessage method using the built-in WebClient
+                 if("hello".equalsIgnoreCase(payload.getEvent().getText())) {
+	                 ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+	                     // The token you used to initialize your app is stored in the `context` object
+	                     .token(ctx.getBotToken())
+	                     // Payload message should be posted in the channel where original message was heard
+	                     .channel(event.getChannel())
+	                     .text("world")
+	                 );
+                 }
+                 if("how are you!".equalsIgnoreCase(payload.getEvent().getText())) {
+	                 ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+	                     // The token you used to initialize your app is stored in the `context` object
+	                     .token(ctx.getBotToken())
+	                     // Payload message should be posted in the channel where original message was heard
+	                     .channel(event.getChannel())
+	                     .text("I am good here!")
+	                 );
+                 }
+                 //logger.info("hello result: {}", result);
+             } catch (IOException | SlackApiException e) {
+                 logger.error("hello error: {}", e.getMessage(), e);
+             }
+             return ctx.ack();
         });
         app.event(MessageBotEvent.class, (payload, ctx) -> {
         	logger.info("message event executed with text value {} and type of event {}",payload.getEvent().getText(),payload.getEvent().getType());
@@ -50,6 +78,9 @@ public class SlackApp {
         	logger.info("message event hello executed with username {}",req.getEvent().getUser());
             try {
                 MessageEvent event = req.getEvent();
+                logger.info("message event hello executed with event  {} :",event);
+                logger.info("message event hello executed with bot token  {} :",ctx.getBotToken());
+                logger.info("message event hello executed with channel {} :",event.getChannel());
                 // Call the chat.postMessage method using the built-in WebClient
                 ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
                     // The token you used to initialize your app is stored in the `context` object
