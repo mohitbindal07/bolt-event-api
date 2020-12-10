@@ -163,7 +163,7 @@ public class SlackApp {
 	public String getWorkOrderStatus(String workId) {
 
 		RestTemplate restTemplate = new RestTemplate();
-		String uri = "http://localhost:8080/api/v1/workorder/" + workId;
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId;
 		
 		// Set the Accept header
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -183,7 +183,7 @@ public class SlackApp {
 
 		RestTemplate restTemplate = new RestTemplate();
 
-		String uri = "http://localhost:8080/api/v1/workorder/" + workId;
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId;
 
 		// Set the Accept header
 		HttpHeaders requestHeaders = new HttpHeaders();
