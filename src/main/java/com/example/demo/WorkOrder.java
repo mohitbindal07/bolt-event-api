@@ -2,9 +2,7 @@ package com.example.demo;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class WorkOrder {
 
 	private String workOrderId;

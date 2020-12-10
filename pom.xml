@@ -35,7 +35,20 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		    <dependency>
+		    
+        
+		
+		<!-- <dependency>
+		    <groupId>com.squareup.okhttp3</groupId>
+		    <artifactId>okhttp</artifactId>
+		    <version>4.9.0</version>
+		</dependency>
+		<dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.9.4</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.9.4</version>
@@ -45,24 +58,13 @@
             <artifactId>jackson-core</artifactId>
             <version>2.9.4</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.9.4</version>
-        </dependency>
-		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
-		<dependency>
-		    <groupId>com.squareup.okhttp3</groupId>
-		    <artifactId>okhttp</artifactId>
-		    <version>4.9.0</version>
-		</dependency>
-				
-		<!-- https://mvnrepository.com/artifact/com.slack.api/bolt-servlet -->
+				-->
+	
 		<dependency>
 		    <groupId>com.slack.api</groupId>
 		    <artifactId>bolt-servlet</artifactId>
 		    <version>1.2.1</version>
-		</dependency>
+		</dependency> 
 					
 
 		<dependency>
@@ -78,7 +80,43 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+			  <artifactId>maven-clean-plugin</artifactId>
+			  <version>3.0.0</version>
+			  <executions>
+			    <execution>
+			      <id>clean-jar-artifacts</id>
+			      <phase>install</phase>
+			      <goals><goal>clean</goal></goals>
+			      <configuration>
+			        <excludeDefaultDirectories>true</excludeDefaultDirectories>
+			        <filesets>
+			          <fileset>
+			            <directory>target/dependency/*.jar</directory>
+			          </fileset>
+			        </filesets>
+			      </configuration>
+			    </execution>
+			  </executions>
+			</plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-dependency-plugin</artifactId>
+			  <version>2.4</version>
+			  <executions>
+			    <execution>
+			      <id>copy-dependencies</id>
+			      <phase>package</phase>
+			      <goals><goal>copy-dependencies</goal></goals>
+			      <configuration>
+			        <includeScope>compile</includeScope>
+			      </configuration>
+			    </execution>
+			  </executions>
+			</plugin>
 		</plugins>
 	</build>
+	
+	
 
 </project>
