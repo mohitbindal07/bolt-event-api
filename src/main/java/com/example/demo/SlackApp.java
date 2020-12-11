@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,6 +39,8 @@ public class SlackApp {
 	//@Autowired
 	//private StanfordCoreNLP stanfordCoreNLP;
 	
+	static public String workorderId;
+	
 	@Bean
 	public App initSlackApp() {
 		App app = new App();
@@ -57,23 +60,41 @@ public class SlackApp {
 				// Call the chat.postMessage method using the built-in WebClient
 				
 				if(isWorkOrderStatus(payload.getEvent().getText())) {
-					String workorderId = getWorkOrderId(payload.getEvent().getText());
+				    workorderId = getWorkOrderId(payload.getEvent().getText());
 					String workOrderStatus = getWorkOrderStatus(workorderId);
 					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
 							// heard
-							.channel(event.getChannel()).text("The status of workorder is "+workOrderStatus));
+							.channel(event.getChannel()).text("The status of workorder "+workorderId +" is "+workOrderStatus));
 				}
 				if(isWorkOrderAssigned(payload.getEvent().getText())) {
-					String workOrderAssigned =getWorkOrderAssigned(payload.getEvent().getText());
+					String workOrderAssigned =getWorkOrderAssigned(workorderId);
 							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 									// The token you used to initialize your app is stored in the `context` object
 									.token(ctx.getBotToken())
 									// Payload message should be posted in the channel where original message was
 									// heard
 									.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
+				}
+				if(isWorkOrderLength(payload.getEvent().getText())) {
+					List<String> lengths =getWorkOrderLength(workorderId);
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("length of each cable in this workorder are FQN1 : "+lengths.get(0)+", FQN2 : "+lengths.get(1)+ ", FQN3 : "+lengths.get(2)+", FQN4 : "+lengths.get(3)));
+				}
+				if(isWorkOrderMilestone(payload.getEvent().getText())) {
+					List<String> milestones =getWorkOrderMilestone(workorderId);
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
 				}
 				
 			} catch (IOException | SlackApiException e) {
@@ -150,6 +171,32 @@ public class SlackApp {
 		return false;
 	}
 	
+	public boolean isWorkOrderLength(String text) {
+		String [] strings  = text.split(" ");
+		List<String> coreLabels= Arrays.asList(strings);
+		//List<CoreLabel> coreLabels = getAllToken(text);
+		for (String coreLabel : coreLabels) {
+			if (coreLabel.equalsIgnoreCase("cable")
+					|| coreLabel.equalsIgnoreCase("miles")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isWorkOrderMilestone(String text) {
+		String [] strings  = text.split(" ");
+		List<String> coreLabels= Arrays.asList(strings);
+		//List<CoreLabel> coreLabels = getAllToken(text);
+		for (String coreLabel : coreLabels) {
+			if (coreLabel.equalsIgnoreCase("milestone")
+					|| coreLabel.equalsIgnoreCase("milestones")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public String getWorkOrderId(String text) {
 		String regex = "FQN[0-9]+";
 		
@@ -165,7 +212,7 @@ public class SlackApp {
 	public String getWorkOrderStatus(String workId) {
 
 		RestTemplate restTemplate = new RestTemplate();
-		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId;
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId + "/status";
 		
 		// Set the Accept header
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -176,16 +223,16 @@ public class SlackApp {
 		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
 		// Make the HTTP GET request, marshaling the response from JSON to an array of Events
-		ResponseEntity<WorkOrder> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity, WorkOrder.class);
-		WorkOrder workOrder = responseEntity.getBody();
-		return workOrder.getWorkOrderStatus();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity, String.class);
+		String status = responseEntity.getBody();
+		return status;
 	}
 	
 	public String getWorkOrderAssigned(String workId) {
 
 		RestTemplate restTemplate = new RestTemplate();
 
-		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId;
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId + "/assigned";
 
 		// Set the Accept header
 		HttpHeaders requestHeaders = new HttpHeaders();
@@ -197,10 +244,56 @@ public class SlackApp {
 
 		// Make the HTTP GET request, marshaling the response from JSON to an array of
 		// Events
-		ResponseEntity<WorkOrder> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
-				WorkOrder.class);
-		WorkOrder workOrder = responseEntity.getBody();
-		return workOrder.getWorkOrderAssigned();
+		ResponseEntity<String> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
+				String.class);
+		String assigned = responseEntity.getBody();
+		return assigned;
+
+	}
+	
+	public List<String> getWorkOrderLength(String workId) {
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId +"/length";
+
+		// Set the Accept header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept(Collections.singletonList(new MediaType("application", "json")));
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+
+		// Add the Jackson message converter
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		// Make the HTTP GET request, marshaling the response from JSON to an array of
+		// Events
+		ResponseEntity<List<String>> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<List<String>>() {});
+		List<String> strings = responseEntity.getBody();
+		return strings;
+
+	}
+	
+	public List<String> getWorkOrderMilestone(String workId) {
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/workorder/" + workId +"/milestone";
+
+		// Set the Accept header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept(Collections.singletonList(new MediaType("application", "json")));
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+
+		// Add the Jackson message converter
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		// Make the HTTP GET request, marshaling the response from JSON to an array of
+		// Events
+		ResponseEntity<List<String>> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
+				new ParameterizedTypeReference<List<String>>() {});
+		List<String> strings = responseEntity.getBody();
+		return strings;
 
 	}
 	
