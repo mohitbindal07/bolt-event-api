@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -8,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -26,17 +26,17 @@ import com.slack.api.model.event.AppMentionEvent;
 import com.slack.api.model.event.MessageBotEvent;
 import com.slack.api.model.event.MessageEvent;
 
-import edu.stanford.nlp.ling.CoreAnnotations;
+/*import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-
+*/
 @Configuration
 public class SlackApp {
 	private static final Logger logger = LoggerFactory.getLogger(SlackApp.class);
 
-	@Autowired
-	private StanfordCoreNLP stanfordCoreNLP;
+	//@Autowired
+	//private StanfordCoreNLP stanfordCoreNLP;
 	
 	@Bean
 	public App initSlackApp() {
@@ -138,10 +138,12 @@ public class SlackApp {
 	}
 	
 	public boolean isWorkOrderAssigned(String text) {
-		List<CoreLabel> coreLabels = getAllToken(text);
-		for (CoreLabel coreLabel : coreLabels) {
-			if (coreLabel.get(CoreAnnotations.NamedEntityTagAnnotation.class).equalsIgnoreCase("whom")
-					|| coreLabel.get(CoreAnnotations.NamedEntityTagAnnotation.class).equalsIgnoreCase("assigned")) {
+		String [] strings  = text.split(" ");
+		List<String> coreLabels= Arrays.asList(strings);
+		//List<CoreLabel> coreLabels = getAllToken(text);
+		for (String coreLabel : coreLabels) {
+			if (coreLabel.equalsIgnoreCase("whom")
+					|| coreLabel.equalsIgnoreCase("assigned")) {
 				return true;
 			}
 		}
@@ -202,13 +204,13 @@ public class SlackApp {
 
 	}
 	
-	public List<CoreLabel> getAllToken(String text) {
+	/*public List<CoreLabel> getAllToken(String text) {
 
 		CoreDocument coreDocument = new CoreDocument(text);
 		stanfordCoreNLP.annotate(coreDocument);
 		List<CoreLabel> coreLabels = coreDocument.tokens();
 		return coreLabels;
-	}
+	}*/
 	/*
 	 * @Bean public App initSlackApp() { App app = new App(); app.command("/hello",
 	 * (req, ctx) -> { return ctx.ack("What's up?"); }); return app; }
