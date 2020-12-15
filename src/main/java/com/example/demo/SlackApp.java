@@ -64,7 +64,7 @@ public class SlackApp {
 				logger.info("app mention event hello executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
 				String text = payload.getEvent().getText();
-				if("help".equals(text.trim())) {
+				if(text.contains("help")) {
 		    		ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
@@ -73,6 +73,7 @@ public class SlackApp {
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
 				    				+ "2. work order status"));
+		    		return ctx.ack();
 		    	}
 				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
 		    		map.put("command", "ticket");
@@ -106,6 +107,7 @@ public class SlackApp {
 							// Payload message should be posted in the channel where original message was
 							// heard
 							.channel(event.getChannel()).text(res));
+						
 					 String [] modTitleSev = text.split(" ");
 					
 					 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
@@ -115,6 +117,7 @@ public class SlackApp {
 								// Payload message should be posted in the channel where original message was
 								// heard
 								.channel(event.getChannel()).text("Ticket created with jira id : "+jiraId));
+					 map.clear();
 				}else if("work order".equals(map.get("command"))){
 					if(isWorkOrderStatus(payload.getEvent().getText())) {
 					    workorderId = getWorkOrderId(payload.getEvent().getText());
@@ -153,6 +156,7 @@ public class SlackApp {
 										// heard
 										.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
 					}
+					map.clear();
 				}
 				
 				
