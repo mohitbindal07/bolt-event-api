@@ -1,9 +1,13 @@
 package com.example.demo;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +44,7 @@ public class SlackApp {
 	//private StanfordCoreNLP stanfordCoreNLP;
 	
 	static public String workorderId;
+	static Map<String,String> map = new HashMap<>();
 	
 	@Bean
 	public App initSlackApp() {
@@ -58,51 +63,108 @@ public class SlackApp {
 				logger.info("app mention event hello executed with bot token  {} :", ctx.getBotToken());
 				logger.info("app mention event hello executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
-				
-				if(isWorkOrderStatus(payload.getEvent().getText())) {
-				    workorderId = getWorkOrderId(payload.getEvent().getText());
-					String workOrderStatus = getWorkOrderStatus(workorderId);
+				String text = payload.getEvent().getText();
+				if("help".equals(text.trim())) {
+		    		ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+							// The token you used to initialize your app is stored in the `context` object
+							.token(ctx.getBotToken())
+							// Payload message should be posted in the channel where original message was
+							// heard
+							.channel(event.getChannel()).text("How can I help you today,\n"
+				    				+ "1. Issue/Ticket tracking\n"
+				    				+ "2. work order status"));
+		    	}
+				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
+		    		map.put("command", "ticket");
+		    	}
+		    	else if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("work order")) {
+		    		map.put("command", "work order");
+		    	}
+				if("jira id".equals(text)) {
+					JiraTicket jiraTicket= getIssueTrackingStatus(getJiraId(text));
+					if(jiraTicket!=null) {
+						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+							// The token you used to initialize your app is stored in the `context` object
+							.token(ctx.getBotToken())
+							// Payload message should be posted in the channel where original message was
+							// heard
+							.channel(event.getChannel()).text("The jira ticket #" +jiraTicket.getJiraId()+" the title is "+jiraTicket.getTitle()+ " and severity is "+jiraTicket.getSeverity()));
+					}else {
+						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+								// The token you used to initialize your app is stored in the `context` object
+								.token(ctx.getBotToken())
+								// Payload message should be posted in the channel where original message was
+								// heard
+								.channel(event.getChannel()).text("The ticket number NOT FOUND"));
+					}
+				}
+				if("ticket".equals(map.get("command"))) {
+					String res = "Please provide me the module name, title and severity of the Issue ?";
 					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
 							// heard
-							.channel(event.getChannel()).text("The status of workorder "+workorderId +" is "+workOrderStatus));
+							.channel(event.getChannel()).text(res));
+					 String [] modTitleSev = text.split(" ");
+					
+					 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
+					 ctx.client().chatPostMessage(r -> r
+								// The token you used to initialize your app is stored in the `context` object
+								.token(ctx.getBotToken())
+								// Payload message should be posted in the channel where original message was
+								// heard
+								.channel(event.getChannel()).text("Ticket created with jira id : "+jiraId));
+				}else if("work order".equals(map.get("command"))){
+					if(isWorkOrderStatus(payload.getEvent().getText())) {
+					    workorderId = getWorkOrderId(payload.getEvent().getText());
+						String workOrderStatus = getWorkOrderStatus(workorderId);
+						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+								// The token you used to initialize your app is stored in the `context` object
+								.token(ctx.getBotToken())
+								// Payload message should be posted in the channel where original message was
+								// heard
+								.channel(event.getChannel()).text("The status of workorder "+workorderId +" is "+workOrderStatus));
+					}
+					if(isWorkOrderAssigned(payload.getEvent().getText())) {
+						String workOrderAssigned =getWorkOrderAssigned(workorderId);
+								ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+										// The token you used to initialize your app is stored in the `context` object
+										.token(ctx.getBotToken())
+										// Payload message should be posted in the channel where original message was
+										// heard
+										.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
+					}
+					if(isWorkOrderLength(payload.getEvent().getText())) {
+						List<String> lengths =getWorkOrderLength(workorderId);
+								ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+										// The token you used to initialize your app is stored in the `context` object
+										.token(ctx.getBotToken())
+										// Payload message should be posted in the channel where original message was
+										// heard
+										.channel(event.getChannel()).text("length of each cable in this workorder are FQN1 : "+lengths.get(0)+", FQN2 : "+lengths.get(1)+ ", FQN3 : "+lengths.get(2)+", FQN4 : "+lengths.get(3)));
+					}
+					if(isWorkOrderMilestone(payload.getEvent().getText())) {
+						List<String> milestones =getWorkOrderMilestone(workorderId);
+								ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+										// The token you used to initialize your app is stored in the `context` object
+										.token(ctx.getBotToken())
+										// Payload message should be posted in the channel where original message was
+										// heard
+										.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
+					}
 				}
-				if(isWorkOrderAssigned(payload.getEvent().getText())) {
-					String workOrderAssigned =getWorkOrderAssigned(workorderId);
-							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-									// The token you used to initialize your app is stored in the `context` object
-									.token(ctx.getBotToken())
-									// Payload message should be posted in the channel where original message was
-									// heard
-									.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
-				}
-				if(isWorkOrderLength(payload.getEvent().getText())) {
-					List<String> lengths =getWorkOrderLength(workorderId);
-							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-									// The token you used to initialize your app is stored in the `context` object
-									.token(ctx.getBotToken())
-									// Payload message should be posted in the channel where original message was
-									// heard
-									.channel(event.getChannel()).text("length of each cable in this workorder are FQN1 : "+lengths.get(0)+", FQN2 : "+lengths.get(1)+ ", FQN3 : "+lengths.get(2)+", FQN4 : "+lengths.get(3)));
-				}
-				if(isWorkOrderMilestone(payload.getEvent().getText())) {
-					List<String> milestones =getWorkOrderMilestone(workorderId);
-							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-									// The token you used to initialize your app is stored in the `context` object
-									.token(ctx.getBotToken())
-									// Payload message should be posted in the channel where original message was
-									// heard
-									.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
-				}
+				
 				
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			return ctx.ack();
 		});
-		app.event(MessageBotEvent.class, (payload, ctx) -> {
+		/*app.event(MessageBotEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
@@ -143,7 +205,7 @@ public class SlackApp {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
 			return ctx.ack();
-		});
+		});*/
 
 		return app;
 	}
@@ -199,6 +261,18 @@ public class SlackApp {
 	
 	public String getWorkOrderId(String text) {
 		String regex = "FQN[0-9]+";
+		
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(text);
+		String workId = null;
+		while (matcher.find()) {
+			workId = text.substring(matcher.start(), matcher.end());
+		}
+		return workId;
+	}
+	
+	public String getJiraId(String text) {
+		String regex = "JT[0-9]+";
 		
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(text);
@@ -297,6 +371,83 @@ public class SlackApp {
 
 	}
 	
+	public static JiraTicket getIssueTrackingStatus(String jiraId) {
+		
+		RestTemplate restTemplate = new RestTemplate();
+
+		String uri = "https://slack-event-api.herokuapp.com/api/v1/jiraticket/" + jiraId +"/status";
+
+		// Set the Accept header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept(Collections.singletonList(new MediaType("application", "json")));
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+
+		// Add the Jackson message converter
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		// Make the HTTP GET request, marshaling the response from JSON to an array of
+		// Events
+		ResponseEntity<JiraTicket> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
+				JiraTicket.class);
+		JiraTicket jiraTicket = responseEntity.getBody();
+		return jiraTicket;
+	}
+	
+	/*public static void main(String[] args) throws URISyntaxException {
+		
+		String jiraID = createIssueTracking("slackbot", "slackbot module", "slack bot description", "high");
+		updateIssueTracking(jiraID, null, "updated module", "updated description", null);
+		System.out.println("The jira status title : "+getIssueTrackingStatus(jiraID).getTitle());
+		
+	}*/
+	public String createIssueTracking(String title,String module,String description,String severity) throws URISyntaxException {
+		
+		RestTemplate restTemplate = new RestTemplate();
+		JiraTicket jiraTicket = new JiraTicket();
+		jiraTicket.setDescription(description);
+		jiraTicket.setModule(module);
+		jiraTicket.setSeverity(severity);
+		jiraTicket.setTitle(title);
+		
+		String baseUrl = "https://slack-event-api.herokuapp.com/api/v1/jiraticket/";
+	    URI uri = new URI(baseUrl);
+		// Set the Accept header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept(Collections.singletonList(new MediaType("application", "json")));
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(jiraTicket,requestHeaders);
+
+		// Add the Jackson message converter
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		// Make the HTTP GET request, marshaling the response from JSON to an array of
+		// Events
+		ResponseEntity<String> responseEntity = restTemplate.postForEntity(uri, requestEntity, String.class);
+
+		String jiraId = responseEntity.getBody();
+		return jiraId;
+	}
+	
+	public static String updateIssueTracking(String jiraId,String title,String module,String description,String severity) throws URISyntaxException {
+		
+		RestTemplate restTemplate = new RestTemplate();
+		String baseUrl = "https://slack-event-api.herokuapp.com/api/v1/jiraticket/"+jiraId+"?title="+title+"&module="+module+"&description="+description+"&severity="+severity;
+	   // URI uri = new URI(baseUrl);
+		// Set the Accept header
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setAccept(Collections.singletonList(new MediaType("application", "json")));
+		HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+
+		// Add the Jackson message converter
+		restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+		// Make the HTTP GET request, marshaling the response from JSON to an array of
+		// Events
+		ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl, HttpMethod.PUT,requestEntity, String.class);
+
+		String jira = responseEntity.getBody();
+		return jira;
+	}
+
 	/*public List<CoreLabel> getAllToken(String text) {
 
 		CoreDocument coreDocument = new CoreDocument(text);
