@@ -3,6 +3,7 @@ package com.example.demo;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public class SlackApp {
 	static public String workorderId;
 	static Map<String,String> map = new HashMap<>();
 	static boolean isCompleted = true;
+	static List<JiraTicket> jiraTickets = new  ArrayList<JiraTicket>();
 	
 	@Bean
 	public App initSlackApp() {
@@ -83,22 +85,18 @@ public class SlackApp {
 		    		map.put("command", "work order");
 		    	}
 				if(text.contains("jira id")) {
-					JiraTicket jiraTicket= getIssueTrackingStatus(getJiraId(text));
-					if(jiraTicket!=null) {
-						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-							// The token you used to initialize your app is stored in the `context` object
-							.token(ctx.getBotToken())
-							// Payload message should be posted in the channel where original message was
-							// heard
-							.channel(event.getChannel()).text("The jira ticket #" +jiraTicket.getJiraId()+" the title is "+jiraTicket.getTitle()+ " and severity is "+jiraTicket.getSeverity()));
-					}else {
-						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-								// The token you used to initialize your app is stored in the `context` object
-								.token(ctx.getBotToken())
-								// Payload message should be posted in the channel where original message was
-								// heard
-								.channel(event.getChannel()).text("The ticket number NOT FOUND"));
+					String jiraId = getJiraId(text);
+					for(JiraTicket jira: jiraTickets ) {
+						if(jira.getJiraId().equalsIgnoreCase(jiraId)) {
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+jira.getTitle()+ " and severity is "+jira.getSeverity()));
+						}
 					}
+					
 				}
 				if("ticket".equals(map.get("command"))) {
 					if(isCompleted) {
@@ -114,8 +112,16 @@ public class SlackApp {
 					}
 					else {	
 						 String [] modTitleSev = text.split("|");
-						
-						 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
+						 JiraTicket jiraTicket = new JiraTicket();
+						 jiraTicket.setModule(modTitleSev[0]);
+						 jiraTicket.setTitle(modTitleSev[1]);
+						 jiraTicket.setSeverity(modTitleSev[2]);
+						 int random_int = (int) (Math.random() * (999999 - 111111 + 1) + 111111);
+						 String jiraId = "JT" + random_int;
+						 jiraTicket.setJiraId(jiraId);
+						 jiraTickets.add(jiraTicket);
+						 
+						// String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
 						 ctx.client().chatPostMessage(r -> r
 									// The token you used to initialize your app is stored in the `context` object
 									.token(ctx.getBotToken())
@@ -171,10 +177,7 @@ public class SlackApp {
 				
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
-			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} 
 			return ctx.ack();
 		});
 		app.event(MessageBotEvent.class, (payload, ctx) -> {
