@@ -45,6 +45,7 @@ public class SlackApp {
 	
 	static public String workorderId;
 	static Map<String,String> map = new HashMap<>();
+	static boolean isCompleted = true;
 	
 	@Bean
 	public App initSlackApp() {
@@ -100,24 +101,32 @@ public class SlackApp {
 					}
 				}
 				if("ticket".equals(map.get("command"))) {
-					String res = "Please provide me the module name, title and severity of the Issue ?";
-					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-							// The token you used to initialize your app is stored in the `context` object
-							.token(ctx.getBotToken())
-							// Payload message should be posted in the channel where original message was
-							// heard
-							.channel(event.getChannel()).text(res));
-						
-					 String [] modTitleSev = text.split(" ");
-					
-					 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
-					 ctx.client().chatPostMessage(r -> r
+					if(isCompleted) {
+						String res = "Please provide me the module name, title and severity of the Issue with pile(|) separation?";
+						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
 								.token(ctx.getBotToken())
 								// Payload message should be posted in the channel where original message was
 								// heard
-								.channel(event.getChannel()).text("Ticket created with jira id : "+jiraId));
-					 map.clear();
+								.channel(event.getChannel()).text(res));
+						 isCompleted = false;
+						//return ctx.ack();
+					}
+					else {	
+						 String [] modTitleSev = text.split(" ");
+						
+						 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
+						 ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("Ticket created with jira id : "+jiraId));
+						
+						// return ctx.ack();
+						 map.clear();
+					}
+					
 				}else if("work order".equals(map.get("command"))){
 					if(isWorkOrderStatus(payload.getEvent().getText())) {
 					    workorderId = getWorkOrderId(payload.getEvent().getText());
