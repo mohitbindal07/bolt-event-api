@@ -82,7 +82,7 @@ public class SlackApp {
 		    	else if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("work order")) {
 		    		map.put("command", "work order");
 		    	}
-				if("jira id".equals(text)) {
+				if(text.contains("jira id")) {
 					JiraTicket jiraTicket= getIssueTrackingStatus(getJiraId(text));
 					if(jiraTicket!=null) {
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
@@ -113,7 +113,7 @@ public class SlackApp {
 						//return ctx.ack();
 					}
 					else {	
-						 String [] modTitleSev = text.split(" ");
+						 String [] modTitleSev = text.split("|");
 						
 						 String jiraId = createIssueTracking(modTitleSev[1],modTitleSev[0],modTitleSev[1],modTitleSev[2]);
 						 ctx.client().chatPostMessage(r -> r
