@@ -164,7 +164,7 @@ public class SlackApp {
 			}
 			return ctx.ack();
 		});
-		/*app.event(MessageBotEvent.class, (payload, ctx) -> {
+		app.event(MessageBotEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
@@ -205,7 +205,7 @@ public class SlackApp {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
 			return ctx.ack();
-		});*/
+		});
 
 		return app;
 	}
