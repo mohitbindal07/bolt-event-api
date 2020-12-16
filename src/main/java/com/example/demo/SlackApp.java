@@ -181,11 +181,11 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		app.event(MessageBotEvent.class, (payload, ctx) -> {
+		app.event(MessageEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
-			logger.info("message event executed with username {}", payload.getEvent().getUsername());
+			logger.info("message event executed with username {}", payload.getEvent().getUser());
 			// logger.info("message event executed bot profile name
 			// {}",payload.getEvent().getBotId());
 			try {
@@ -209,8 +209,8 @@ public class SlackApp {
 							.channel(payload.getEvent().getChannel()).text("ticket created with jira id "));
 		    		return ctx.ack();
 				}
-				MessageBotEvent event = payload.getEvent();
-				logger.info("message MessageBotEvent executed with event  {} :", event);
+				MessageEvent event = payload.getEvent();
+				logger.info("message 	 executed with event  {} :", event);
 				logger.info("message MessageBotEvent executed with bot token  {} :", ctx.getBotToken());
 				logger.info("message MessageBotEvent executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
