@@ -188,6 +188,37 @@ public class SlackApp {
 			logger.info("message event executed with username {}", payload.getEvent().getUsername());
 			// logger.info("message event executed bot profile name
 			// {}",payload.getEvent().getBotId());
+			try {
+				if(payload.getEvent().getText().equalsIgnoreCase("help")) {
+					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+							// The token you used to initialize your app is stored in the `context` object
+							.token(ctx.getBotToken())
+							// Payload message should be posted in the channel where original message was
+							// heard
+							.channel(payload.getEvent().getChannel()).text("How can I help you today,\n"
+				    				+ "1. Issue/Ticket tracking\n"
+				    				+ "2. work order status"));
+		    		return ctx.ack();
+				}
+				if(payload.getEvent().getText().equalsIgnoreCase("ticket")) {
+					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+							// The token you used to initialize your app is stored in the `context` object
+							.token(ctx.getBotToken())
+							// Payload message should be posted in the channel where original message was
+							// heard
+							.channel(payload.getEvent().getChannel()).text("ticket created with jira id "));
+		    		return ctx.ack();
+				}
+				MessageBotEvent event = payload.getEvent();
+				logger.info("message MessageBotEvent executed with event  {} :", event);
+				logger.info("message MessageBotEvent executed with bot token  {} :", ctx.getBotToken());
+				logger.info("message MessageBotEvent executed with channel {} :", event.getChannel());
+				// Call the chat.postMessage method using the built-in WebClient
+				
+				
+			} catch (IOException | SlackApiException e) {
+				logger.error("hello error: {}", e.getMessage(), e);
+			}
 			return ctx.ack();
 		});
 		app.command("/do-the-thing", (req, ctx) -> {
@@ -197,6 +228,12 @@ public class SlackApp {
 			logger.info("slash-command executed with username {}", req.getPayload().getUserName());
 			// logger.info("slash-command executed response url
 			// {}",req.getPayload().getResponseUrl());
+			ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+					// The token you used to initialize your app is stored in the `context` object
+					.token(ctx.getBotToken())
+					// Payload message should be posted in the channel where original message was
+					// heard
+					.channel(req.getPayload().getChannelId()).text("slash command"));
 			return ctx.ack("OK, let's do it!");
 		});
 
