@@ -111,6 +111,7 @@ public class SlackApp {
 						//return ctx.ack();
 					}
 					else {	
+						logger.info("pipe operator   {} :", text);
 						 String [] modTitleSev = text.split("|");
 						 JiraTicket jiraTicket = new JiraTicket();
 						 jiraTicket.setModule(modTitleSev[0]);
@@ -409,14 +410,14 @@ public class SlackApp {
 		return jiraTicket;
 	}
 	
-	/*public static void main(String[] args) throws URISyntaxException {
+	public static void main(String[] args) throws URISyntaxException {
 		
 		String jiraID = createIssueTracking("slackbot", "slackbot module", "slack bot description", "high");
 		updateIssueTracking(jiraID, null, "updated module", "updated description", null);
 		System.out.println("The jira status title : "+getIssueTrackingStatus(jiraID).getTitle());
 		
-	}*/
-	public String createIssueTracking(String title,String module,String description,String severity) throws URISyntaxException {
+	}
+	public static String createIssueTracking(String title,String module,String description,String severity) throws URISyntaxException {
 		
 		RestTemplate restTemplate = new RestTemplate();
 		JiraTicket jiraTicket = new JiraTicket();
