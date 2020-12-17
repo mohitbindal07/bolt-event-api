@@ -92,7 +92,7 @@ public class SlackApp {
 				}
 				if("ticket".equals(map.get("command"))) {
 					if(isCompleted) {
-						String res = "Please provide me the module name, title and severity of the Issue with pile(|) separation?";
+						String res = "Please provide me the module name, title and severity of the Issue with separator(#)?";
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
 								.token(ctx.getBotToken())
@@ -105,17 +105,13 @@ public class SlackApp {
 					else {	
 						
 						logger.info("pipe operator   {} :", text);
-						 String [] modTitleSev = text.split("|");
-						 int i=0;
-						 for(String str:modTitleSev ) {
-							 i++;
-							 logger.info("after split : "+i +" ", str);
-						 }
+						 String [] modTitleSev = text.split("#");
+						 
 						 JiraTicket jiraTicket = new JiraTicket();
 						 
-						 jiraTicket.setModule(modTitleSev[0]);
-						 jiraTicket.setTitle(modTitleSev[1]);
-						 jiraTicket.setSeverity(modTitleSev[2]);
+						 jiraTicket.setModule(modTitleSev[0].trim());
+						 jiraTicket.setTitle(modTitleSev[1].trim());
+						 jiraTicket.setSeverity(modTitleSev[2].trim());
 						 int random_int = (int) (Math.random() * (999999 - 111111 + 1) + 111111);
 						 String jiraId = "JT" + random_int;
 						 jiraTicket.setJiraId(jiraId);
@@ -181,7 +177,7 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		String regex = "^[a-zA-Z0-9_.-|\\s]*$";
+		String regex = "^[a-zA-Z0-9_.-|?#\\s]*$";
 		Pattern pattern = Pattern.compile(regex);
 		app.message(pattern, (req, ctx) -> {
 			logger.info("message event pattern executed with text value {} and type of event {}",
@@ -232,7 +228,7 @@ public class SlackApp {
 				if("ticket".equals(map2.get("command"))) {
 					if(isCompleted2) {
 						logger.info("message event pattern executed ticket create typed");
-						String res = "Please provide me the module name, title and severity of the Issue with pile(|) separation?";
+						String res = "Please provide me the module name, title and severity of the Issue with separator(#)?";
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
 								.token(ctx.getBotToken())
@@ -245,11 +241,11 @@ public class SlackApp {
 					else {	
 						logger.info("message event pattern executed ticket jira id typed");
 						logger.info("pipe operator   {} :", text);
-						 String [] modTitleSev = text.split("|");
+						 String [] modTitleSev = text.split("#");
 						 JiraTicket jiraTicket = new JiraTicket();
-						 jiraTicket.setModule(modTitleSev[0]);
-						 jiraTicket.setTitle(modTitleSev[1]);
-						 jiraTicket.setSeverity(modTitleSev[2]);
+						 jiraTicket.setModule(modTitleSev[0].trim());
+						 jiraTicket.setTitle(modTitleSev[1].trim());
+						 jiraTicket.setSeverity(modTitleSev[2].trim());
 						 int random_int = (int) (Math.random() * (999999 - 111111 + 1) + 111111);
 						 String jiraId = "JT" + random_int;
 						 jiraTicket.setJiraId(jiraId);
