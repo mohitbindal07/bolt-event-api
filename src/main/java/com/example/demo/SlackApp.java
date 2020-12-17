@@ -182,11 +182,11 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		/*app.event(MessageEvent.class, (payload, ctx) -> {
+		app.event(MessageBotEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
-			logger.info("message event executed with username {}", payload.getEvent().getUser());
+			logger.info("message event executed with username {}", payload.getEvent().getUsername());
 			// logger.info("message event executed bot profile name
 			// {}",payload.getEvent().getBotId());
 			try {
@@ -210,7 +210,7 @@ public class SlackApp {
 							.channel(payload.getEvent().getChannel()).text("ticket created with jira id "));
 		    		return ctx.ack();
 				}
-				MessageEvent event = payload.getEvent();
+				MessageBotEvent event = payload.getEvent();
 				logger.info("message 	 executed with event  {} :", event);
 				logger.info("message MessageBotEvent executed with bot token  {} :", ctx.getBotToken());
 				logger.info("message MessageBotEvent executed with channel {} :", event.getChannel());
@@ -222,7 +222,7 @@ public class SlackApp {
 			}
 			return ctx.ack();
 		});
-		app.command("/do-the-thing", (req, ctx) -> {
+	/*	app.command("/do-the-thing", (req, ctx) -> {
 			logger.info("slash-command executed with text value {} and type of event {}", req.getPayload().getText(),
 					req.getRequestType());
 			logger.info("slash-command executed with channel name {}", req.getPayload().getChannelName());
@@ -238,6 +238,30 @@ public class SlackApp {
 			return ctx.ack("OK, let's do it!");
 		});
 	*/
+		app.message("hello", (req, ctx) -> {
+			logger.info("message event hello executed with text value {} and type of event {}",
+					req.getEvent().getText(), req.getEvent().getType());
+			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
+			logger.info("message event hello executed with username {}", req.getEvent().getUser());
+			try {
+				MessageEvent event = req.getEvent();
+				logger.info("message event hello executed with event  {} :", event);
+				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
+				logger.info("message event hello executed with channel {} :", event.getChannel());
+				// Call the chat.postMessage method using the built-in WebClient
+				ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+						// The token you used to initialize your app is stored in the `context` object
+						.token(ctx.getBotToken())
+						// Payload message should be posted in the channel where original message was
+						// heard
+						.channel(event.getChannel()).text("world"));
+				
+			} catch (IOException | SlackApiException e) {
+				logger.error("hello error: {}", e.getMessage(), e);
+			}
+			return ctx.ack();
+		});
+		
 		app.message("help", (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
