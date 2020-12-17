@@ -238,7 +238,7 @@ public class SlackApp {
 			return ctx.ack("OK, let's do it!");
 		});
 	*/
-		app.message("hello", (req, ctx) -> {
+		app.message("help", (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
 			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
