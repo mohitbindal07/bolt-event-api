@@ -142,6 +142,7 @@ public class SlackApp {
 								.channel(event.getChannel()).text("The status of workorder "+workorderId +" is "+workOrderStatus));
 					}
 					if(isWorkOrderAssigned(payload.getEvent().getText())) {
+						logger.info("inside work order assigned block");
 						String workOrderAssigned =getWorkOrderAssigned(workorderId);
 								ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 										// The token you used to initialize your app is stored in the `context` object
@@ -342,8 +343,8 @@ public class SlackApp {
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
 		for (String coreLabel : coreLabels) {
-			if (coreLabel.equalsIgnoreCase("whom")
-					|| coreLabel.equalsIgnoreCase("assigned")) {
+			if (coreLabel.trim().equalsIgnoreCase("whom")
+					|| coreLabel.trim().equalsIgnoreCase("assigned")) {
 				return true;
 			}
 		}
@@ -356,8 +357,8 @@ public class SlackApp {
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
 		for (String coreLabel : coreLabels) {
-			if (coreLabel.equalsIgnoreCase("cable")
-					|| coreLabel.equalsIgnoreCase("miles")) {
+			if (coreLabel.trim().equalsIgnoreCase("cable")
+					|| coreLabel.trim().equalsIgnoreCase("miles")) {
 				return true;
 			}
 		}
