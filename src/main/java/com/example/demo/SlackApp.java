@@ -336,7 +336,7 @@ public class SlackApp {
 					}
 					
 				}
-				if("ticket".equals(map.get("command"))) {
+				if("ticket".equals(map2.get("command"))) {
 					if(isCompleted) {
 						String res = "Please provide me the module name, title and severity of the Issue with pile(|) separation?";
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
@@ -369,10 +369,10 @@ public class SlackApp {
 									.channel(event.getChannel()).text("Ticket created with jira id : "+jiraId));
 						
 						// return ctx.ack();
-						 map.clear();
+						 map2.clear();
 					}
 					
-				} else if ("work order".equals(map.get("command"))) {
+				} else if ("work order".equals(map2.get("command"))) {
 					if (isWorkOrderStatus(text)) {
 						workorderId2 = getWorkOrderId(text);
 						String workOrderStatus = getWorkOrderStatus(workorderId2);
