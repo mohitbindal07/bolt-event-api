@@ -26,31 +26,22 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import com.slack.api.bolt.App;
-import com.slack.api.bolt.context.builtin.EventContext;
-import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.model.event.AppMentionEvent;
-import com.slack.api.model.event.MessageBotEvent;
 import com.slack.api.model.event.MessageEvent;
 
-/*import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.pipeline.CoreDocument;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-*/
+
 @Configuration
 public class SlackApp {
 	private static final Logger logger = LoggerFactory.getLogger(SlackApp.class);
-
-	//@Autowired
-	//private StanfordCoreNLP stanfordCoreNLP;
 	
 	static public String workorderId;
 	static public String workorderId2;
 	static Map<String,String> map = new HashMap<>();
 	static Map<String,String> map2 = new HashMap<>();
 	static boolean isCompleted = true;
+	static boolean isCompleted2 = true;
 	static List<JiraTicket> jiraTickets = new  ArrayList<JiraTicket>();
 		
 	@Bean
@@ -59,16 +50,10 @@ public class SlackApp {
 		app.event(AppMentionEvent.class, (payload, ctx) -> {
 			logger.info("app mention event executed with text value {} and type of event {}",
 					payload.getEvent().getText(), payload.getEvent().getType());
-			logger.info("app mention event executed with channel name {}", payload.getEvent().getChannel());
-			logger.info("app mention event executed with username {}", payload.getEvent().getUsername());
-	
 			try {
 
 				// Use the response.getBody()
 				AppMentionEvent event = payload.getEvent();
-				logger.info("app mention event hello executed with event  {} :", event);
-				logger.info("app mention event hello executed with bot token  {} :", ctx.getBotToken());
-				logger.info("app mention event hello executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
 				String text = payload.getEvent().getText();
 				if(text.contains("help")) {
@@ -81,6 +66,8 @@ public class SlackApp {
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
 				    				+ "2. work order status"));
+		    		map.clear();
+		    		isCompleted =true;
 		    		return ctx.ack();
 		    	}
 				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
@@ -116,6 +103,7 @@ public class SlackApp {
 						//return ctx.ack();
 					}
 					else {	
+						
 						logger.info("pipe operator   {} :", text);
 						 String [] modTitleSev = text.split("|");
 						 JiraTicket jiraTicket = new JiraTicket();
@@ -137,6 +125,7 @@ public class SlackApp {
 						
 						// return ctx.ack();
 						 map.clear();
+						 isCompleted = true;
 					}
 					
 				}else if("work order".equals(map.get("command"))){
@@ -186,127 +175,19 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-	/*	app.event(MessageEvent.class, (payload, ctx) -> {
-			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
-					payload.getEvent().getType());
-			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
-			logger.info("message event executed with username {}", payload.getEvent().getUser());
-			// logger.info("message event executed bot profile name
-			// {}",payload.getEvent().getBotId());
-			try {
-				if(payload.getEvent().getText().equalsIgnoreCase("help")) {
-					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-							// The token you used to initialize your app is stored in the `context` object
-							.token(ctx.getBotToken())
-							// Payload message should be posted in the channel where original message was
-							// heard
-							.channel(payload.getEvent().getChannel()).text("How can I help you today,\n"
-				    				+ "1. Issue/Ticket tracking\n"
-				    				+ "2. work order status"));
-		    		return ctx.ack();
-				}
-				if(payload.getEvent().getText().equalsIgnoreCase("ticket")) {
-					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-							// The token you used to initialize your app is stored in the `context` object
-							.token(ctx.getBotToken())
-							// Payload message should be posted in the channel where original message was
-							// heard
-							.channel(payload.getEvent().getChannel()).text("ticket created with jira id "));
-		    		return ctx.ack();
-				}
-				MessageEvent event = payload.getEvent();
-				logger.info("message 	 executed with event  {} :", event);
-				logger.info("message MessageBotEvent executed with bot token  {} :", ctx.getBotToken());
-				logger.info("message MessageBotEvent executed with channel {} :", event.getChannel());
-				// Call the chat.postMessage method using the built-in WebClient
-				
-				
-			} catch (IOException | SlackApiException e) {
-				logger.error("hello error: {}", e.getMessage(), e);
-			}
-			return ctx.ack();
-		});*/
-	/*	app.command("/do-the-thing", (req, ctx) -> {
-			logger.info("slash-command executed with text value {} and type of event {}", req.getPayload().getText(),
-					req.getRequestType());
-			logger.info("slash-command executed with channel name {}", req.getPayload().getChannelName());
-			logger.info("slash-command executed with username {}", req.getPayload().getUserName());
-			// logger.info("slash-command executed response url
-			// {}",req.getPayload().getResponseUrl());
-			ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-					// The token you used to initialize your app is stored in the `context` object
-					.token(ctx.getBotToken())
-					// Payload message should be posted in the channel where original message was
-					// heard
-					.channel(req.getPayload().getChannelId()).text("slash command"));
-			return ctx.ack("OK, let's do it!");
-		});
-	*/
-		/*app.message("help", (req, ctx) -> {
-			logger.info("message event hello executed with text value {} and type of event {}",
-					req.getEvent().getText(), req.getEvent().getType());
-			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
-			logger.info("message event hello executed with username {}", req.getEvent().getUser());
-			try {
-				MessageEvent event = req.getEvent();
-				logger.info("message event hello executed with event  {} :", event);
-				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
-				logger.info("message event hello executed with channel {} :", event.getChannel());
-				// Call the chat.postMessage method using the built-in WebClient
-				ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-						// The token you used to initialize your app is stored in the `context` object
-						.token(ctx.getBotToken())
-						// Payload message should be posted in the channel where original message was
-						// heard
-						
-						.channel(event.getChannel()).text("2 options "));
-				
-			} catch (IOException | SlackApiException e) {
-				logger.error("hello error: {}", e.getMessage(), e);
-			}
-			return ctx.ack();
-		});
-		
-		/*app.message("help", (req, ctx) -> {
-			logger.info("message event hello executed with text value {} and type of event {}",
-					req.getEvent().getText(), req.getEvent().getType());
-			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
-			logger.info("message event hello executed with username {}", req.getEvent().getUser());
-			try {
-				MessageEvent event = req.getEvent();
-				logger.info("message event hello executed with event  {} :", event);
-				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
-				logger.info("message event hello executed with channel {} :", event.getChannel());
-				// Call the chat.postMessage method using the built-in WebClient
-				ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-						// The token you used to initialize your app is stored in the `context` object
-						.token(ctx.getBotToken())
-						// Payload message should be posted in the channel where original message was
-						// heard
-						.channel(event.getChannel()).text("How can I help you today,\n"
-			    				+ "1. Issue/Ticket tracking\n"
-			    				+ "2. work order status"));
-				logger.info("hello result: {}", result);
-			} catch (IOException | SlackApiException e) {
-				logger.error("hello error: {}", e.getMessage(), e);
-			}
-			return ctx.ack();
-		}); */
 		String regex = "^[a-zA-Z0-9_.-]*$";
 		Pattern pattern = Pattern.compile(regex);
 		app.message(pattern, (req, ctx) -> {
 			logger.info("message event pattern executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
-			logger.info("message event pattern executed with channel name {}", req.getEvent().getChannel());
-			logger.info("message event pattern executed with username {}", req.getEvent().getUser());
+			
 			try {
 				MessageEvent event = req.getEvent();
-				logger.info("message event hello executed with event  {} :", event);
-				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
-				logger.info("message event hello executed with channel {} :", event.getChannel());
+				
 				// Call the chat.postMessage method using the built-in WebClient
 				String text = req.getEvent().getText();
 				if(text.equals("help")){
+					logger.info("message event pattern executed help typed");
 					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
@@ -315,14 +196,20 @@ public class SlackApp {
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
 				    				+ "2. work order status"));
+					map2.clear();
+					isCompleted2 = true;
+					return ctx.ack();
 				}
 				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
+					logger.info("message event pattern executed ticket typed");
 		    		map2.put("command", "ticket");
 		    	}
 		    	else if(!(text.isEmpty() || text==null) && (text.toLowerCase().contains("work order")|| text.toLowerCase().contains("workorder"))) {
+		    		logger.info("message event pattern executed work order typed");
 		    		map2.put("command", "work order");
 		    	}
 				if(text.contains("jira id")) {
+					logger.info("message event pattern executed jira id typed");
 					String jiraId = getJiraId(text);
 					for(JiraTicket jira: jiraTickets ) {
 						if(jira.getJiraId().equalsIgnoreCase(jiraId)) {
@@ -337,7 +224,8 @@ public class SlackApp {
 					
 				}
 				if("ticket".equals(map2.get("command"))) {
-					if(isCompleted) {
+					if(isCompleted2) {
+						logger.info("message event pattern executed ticket create typed");
 						String res = "Please provide me the module name, title and severity of the Issue with pile(|) separation?";
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
@@ -345,10 +233,11 @@ public class SlackApp {
 								// Payload message should be posted in the channel where original message was
 								// heard
 								.channel(event.getChannel()).text(res));
-						 isCompleted = false;
+						 isCompleted2 = false;
 						//return ctx.ack();
 					}
 					else {	
+						logger.info("message event pattern executed ticket jira id typed");
 						logger.info("pipe operator   {} :", text);
 						 String [] modTitleSev = text.split("|");
 						 JiraTicket jiraTicket = new JiraTicket();
@@ -373,7 +262,9 @@ public class SlackApp {
 					}
 					
 				} else if ("work order".equals(map2.get("command"))) {
+					logger.info("message event pattern executed work order command");
 					if (isWorkOrderStatus(text)) {
+						logger.info("message event pattern executed work order command status");
 						workorderId2 = getWorkOrderId(text);
 						String workOrderStatus = getWorkOrderStatus(workorderId2);
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
@@ -385,6 +276,7 @@ public class SlackApp {
 								.text("The status of workorder " + workorderId2 + " is " + workOrderStatus));
 					}
 					if (isWorkOrderAssigned(text)) {
+						logger.info("message event pattern executed work order command assigned");
 						String workOrderAssigned = getWorkOrderAssigned(workorderId2);
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
@@ -394,6 +286,7 @@ public class SlackApp {
 								.channel(event.getChannel()).text("workorder assigned to " + workOrderAssigned));
 					}
 					if (isWorkOrderLength(text)) {
+						logger.info("message event pattern executed work order command length");
 						List<String> lengths = getWorkOrderLength(workorderId2);
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
@@ -406,6 +299,7 @@ public class SlackApp {
 										+ lengths.get(3)));
 					}
 					if (isWorkOrderMilestone(text)) {
+						logger.info("message event pattern executed work order command milestone");
 						List<String> milestones = getWorkOrderMilestone(workorderId2);
 						ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 								// The token you used to initialize your app is stored in the `context` object
@@ -426,36 +320,11 @@ public class SlackApp {
 			return ctx.ack();
 		});
 
-		/*String regex2 = "assigned";
-		Pattern pattern2 = Pattern.compile(regex2);
-		app.message(pattern2, (req, ctx) -> {
-			logger.info("message event hello executed with text value {} and type of event {}",
-					req.getEvent().getText(), req.getEvent().getType());
-			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
-			logger.info("message event hello executed with username {}", req.getEvent().getUser());
-			try {
-				MessageEvent event = req.getEvent();
-				logger.info("message event hello executed with event  {} :", event);
-				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
-				logger.info("message event hello executed with channel {} :", event.getChannel());
-				// Call the chat.postMessage method using the built-in WebClient
-				String workOrderAssigned =getWorkOrderAssigned(workorderId2);
-				ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
-						// The token you used to initialize your app is stored in the `context` object
-						.token(ctx.getBotToken())
-						// Payload message should be posted in the channel where original message was
-						// heard
-						.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
-			} catch (IOException | SlackApiException e) {
-				logger.error("hello error: {}", e.getMessage(), e);
-			}
-			return ctx.ack();
-		});
-		*/
 		return app;
 	}
-
+	
 	public boolean isWorkOrderStatus(String text) {
+		logger.info("inside isWorkOrderStatus");
 		String regex = "test_tampa[0-9]+";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(text);
@@ -466,6 +335,7 @@ public class SlackApp {
 	}
 	
 	public boolean isWorkOrderAssigned(String text) {
+		logger.info("inside isWorkOrderAssigned");
 		String [] strings  = text.split(" ");
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
@@ -479,6 +349,7 @@ public class SlackApp {
 	}
 	
 	public boolean isWorkOrderLength(String text) {
+		logger.info("inside isWorkOrderLength");
 		String [] strings  = text.split(" ");
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
@@ -492,6 +363,7 @@ public class SlackApp {
 	}
 	
 	public boolean isWorkOrderMilestone(String text) {
+		logger.info("inside isWorkOrderMilestone");
 		String [] strings  = text.split(" ");
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
@@ -505,6 +377,7 @@ public class SlackApp {
 	}
 	
 	public String getWorkOrderId(String text) {
+		logger.info("inside getWorkOrderId");
 		String regex = "test_tampa[0-9]+";
 		
 		Pattern pattern = Pattern.compile(regex);
@@ -517,6 +390,7 @@ public class SlackApp {
 	}
 	
 	public String getJiraId(String text) {
+		logger.info("inside getWorkOrderId");
 		String regex = "JT[0-9]+";
 		
 		Pattern pattern = Pattern.compile(regex);
