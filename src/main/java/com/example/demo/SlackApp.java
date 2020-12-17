@@ -182,7 +182,7 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		app.event(MessageEvent.class, (payload, ctx) -> {
+		/*app.event(MessageEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
@@ -237,7 +237,7 @@ public class SlackApp {
 					.channel(req.getPayload().getChannelId()).text("slash command"));
 			return ctx.ack("OK, let's do it!");
 		});
-
+	*/
 		app.message("help", (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
