@@ -198,7 +198,7 @@ public class SlackApp {
 				    				+ "2. work order status"));
 					map2.clear();
 					isCompleted2 = true;
-					return ctx.ack();
+					//return ctx.ack();
 				}
 				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
 					logger.info("message event pattern executed ticket typed");
