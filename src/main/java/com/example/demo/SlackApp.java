@@ -238,7 +238,7 @@ public class SlackApp {
 			return ctx.ack("OK, let's do it!");
 		});
 	*/
-		app.message("help", (req, ctx) -> {
+		/*app.message("help", (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
 			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
@@ -288,9 +288,9 @@ public class SlackApp {
 			}
 			return ctx.ack();
 		}); */
-		//String regex = "test_tampa[0-9]+";
-		//Pattern pattern = Pattern.compile(regex);
-		app.message("hello", (req, ctx) -> {
+		String regex = "^[a-zA-Z0-9_.-]*$";
+		Pattern pattern = Pattern.compile(regex);
+		app.message(pattern, (req, ctx) -> {
 			logger.info("message event pattern executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
 			logger.info("message event pattern executed with channel name {}", req.getEvent().getChannel());
@@ -308,7 +308,7 @@ public class SlackApp {
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
 							// heard
-							.channel(event.getChannel()).text("The status of workorder :"));
+							.channel(event.getChannel()).text("Pattern match"));
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
