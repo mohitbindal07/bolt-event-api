@@ -106,7 +106,13 @@ public class SlackApp {
 						
 						logger.info("pipe operator   {} :", text);
 						 String [] modTitleSev = text.split("|");
+						 int i=0;
+						 for(String str:modTitleSev ) {
+							 i++;
+							 logger.info("after split : "+i +" ", str);
+						 }
 						 JiraTicket jiraTicket = new JiraTicket();
+						 
 						 jiraTicket.setModule(modTitleSev[0]);
 						 jiraTicket.setTitle(modTitleSev[1]);
 						 jiraTicket.setSeverity(modTitleSev[2]);
@@ -175,7 +181,7 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		String regex = "^[a-zA-Z0-9_.-]*$";
+		String regex = "^[a-zA-Z0-9_.-|\\s]*$";
 		Pattern pattern = Pattern.compile(regex);
 		app.message(pattern, (req, ctx) -> {
 			logger.info("message event pattern executed with text value {} and type of event {}",
