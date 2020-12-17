@@ -255,7 +255,7 @@ public class SlackApp {
 						// Payload message should be posted in the channel where original message was
 						// heard
 						
-						.channel(event.getChannel()).text("world"));
+						.channel(event.getChannel()).text("2 options "));
 				
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
@@ -288,9 +288,9 @@ public class SlackApp {
 			}
 			return ctx.ack();
 		}); */
-		String regex = "test_tampa[0-9]+";
-		Pattern pattern = Pattern.compile(regex);
-		app.message(pattern, (req, ctx) -> {
+		//String regex = "test_tampa[0-9]+";
+		//Pattern pattern = Pattern.compile(regex);
+		app.message("hello", (req, ctx) -> {
 			logger.info("message event pattern executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
 			logger.info("message event pattern executed with channel name {}", req.getEvent().getChannel());
@@ -301,14 +301,14 @@ public class SlackApp {
 				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
 				logger.info("message event hello executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
-				workorderId2 = getWorkOrderId(req.getEvent().getText());
-					String workOrderStatus = getWorkOrderStatus(workorderId2);
+				//workorderId2 = getWorkOrderId(req.getEvent().getText());
+				//	String workOrderStatus = getWorkOrderStatus(workorderId2);
 					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
 							// heard
-							.channel(event.getChannel()).text("The status of workorder "+workorderId2 +" is "+workOrderStatus));
+							.channel(event.getChannel()).text("The status of workorder :"));
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
