@@ -287,14 +287,14 @@ public class SlackApp {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
 			return ctx.ack();
-		});
+		}); */
 		String regex = "test_tampa[0-9]+";
 		Pattern pattern = Pattern.compile(regex);
 		app.message(pattern, (req, ctx) -> {
-			logger.info("message event hello executed with text value {} and type of event {}",
+			logger.info("message event pattern executed with text value {} and type of event {}",
 					req.getEvent().getText(), req.getEvent().getType());
-			logger.info("message event hello executed with channel name {}", req.getEvent().getChannel());
-			logger.info("message event hello executed with username {}", req.getEvent().getUser());
+			logger.info("message event pattern executed with channel name {}", req.getEvent().getChannel());
+			logger.info("message event pattern executed with username {}", req.getEvent().getUser());
 			try {
 				MessageEvent event = req.getEvent();
 				logger.info("message event hello executed with event  {} :", event);
@@ -315,7 +315,7 @@ public class SlackApp {
 			return ctx.ack();
 		});
 
-		String regex2 = "assigned";
+		/*String regex2 = "assigned";
 		Pattern pattern2 = Pattern.compile(regex2);
 		app.message(pattern2, (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
