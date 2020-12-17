@@ -26,6 +26,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import com.slack.api.bolt.App;
+import com.slack.api.bolt.context.builtin.EventContext;
+import com.slack.api.bolt.response.Response;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.model.event.AppMentionEvent;
@@ -50,6 +52,18 @@ public class SlackApp {
 	static boolean isCompleted = true;
 	static List<JiraTicket> jiraTickets = new  ArrayList<JiraTicket>();
 	
+	public Response getHelp(AppMentionEvent event ,EventContext ctx) throws IOException, SlackApiException {
+		ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+				// The token you used to initialize your app is stored in the `context` object
+				.token(ctx.getBotToken())
+				// Payload message should be posted in the channel where original message was
+				// heard
+				.channel(event.getChannel()).text("How can I help you today,\n"
+	    				+ "1. Issue/Ticket tracking\n"
+	    				+ "2. work order status"));
+		return ctx.ack();
+	}
+	
 	@Bean
 	public App initSlackApp() {
 		App app = new App();
@@ -69,7 +83,8 @@ public class SlackApp {
 				// Call the chat.postMessage method using the built-in WebClient
 				String text = payload.getEvent().getText();
 				if(text.contains("help")) {
-		    		ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+					return getHelp(event,ctx);
+		    		/*ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
@@ -77,7 +92,7 @@ public class SlackApp {
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
 				    				+ "2. work order status"));
-		    		return ctx.ack();
+		    		return ctx.ack();*/
 		    	}
 				if(!(text.isEmpty() || text==null) && text.toLowerCase().contains("ticket")) {
 		    		map.put("command", "ticket");
@@ -182,7 +197,7 @@ public class SlackApp {
 			} 
 			return ctx.ack();
 		});
-		app.event(MessageEvent.class, (payload, ctx) -> {
+	/*	app.event(MessageEvent.class, (payload, ctx) -> {
 			logger.info("message event executed with text value {} and type of event {}", payload.getEvent().getText(),
 					payload.getEvent().getType());
 			logger.info("message event executed with channel name {}", payload.getEvent().getChannel());
@@ -221,7 +236,7 @@ public class SlackApp {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
 			return ctx.ack();
-		});
+		});*/
 	/*	app.command("/do-the-thing", (req, ctx) -> {
 			logger.info("slash-command executed with text value {} and type of event {}", req.getPayload().getText(),
 					req.getRequestType());
@@ -301,14 +316,54 @@ public class SlackApp {
 				logger.info("message event hello executed with bot token  {} :", ctx.getBotToken());
 				logger.info("message event hello executed with channel {} :", event.getChannel());
 				// Call the chat.postMessage method using the built-in WebClient
-				//workorderId2 = getWorkOrderId(req.getEvent().getText());
-				//	String workOrderStatus = getWorkOrderStatus(workorderId2);
+				String text = req.getEvent().getText();
+				if(text.equals("help")){
 					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
 							// The token you used to initialize your app is stored in the `context` object
 							.token(ctx.getBotToken())
 							// Payload message should be posted in the channel where original message was
 							// heard
-							.channel(event.getChannel()).text("Pattern match"));
+							.channel(event.getChannel()).text("How can I help you today,\n"
+				    				+ "1. Issue/Ticket tracking\n"
+				    				+ "2. work order status"));
+				}
+				if(isWorkOrderStatus(text)) {
+				    workorderId2 = getWorkOrderId(text);
+					String workOrderStatus = getWorkOrderStatus(workorderId2);
+					ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+							// The token you used to initialize your app is stored in the `context` object
+							.token(ctx.getBotToken())
+							// Payload message should be posted in the channel where original message was
+							// heard
+							.channel(event.getChannel()).text("The status of workorder "+workorderId2 +" is "+workOrderStatus));
+				}
+				if(isWorkOrderAssigned(text)) {
+					String workOrderAssigned =getWorkOrderAssigned(workorderId2);
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
+				}
+				if(isWorkOrderLength(text)) {
+					List<String> lengths =getWorkOrderLength(workorderId2);
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("length of each cable in this workorder are FQN1 : "+lengths.get(0)+", FQN2 : "+lengths.get(1)+ ", FQN3 : "+lengths.get(2)+", FQN4 : "+lengths.get(3)));
+				}
+				if(isWorkOrderMilestone(text)) {
+					List<String> milestones =getWorkOrderMilestone(workorderId2);
+							ChatPostMessageResponse result = ctx.client().chatPostMessage(r -> r
+									// The token you used to initialize your app is stored in the `context` object
+									.token(ctx.getBotToken())
+									// Payload message should be posted in the channel where original message was
+									// heard
+									.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
+				}
 			} catch (IOException | SlackApiException e) {
 				logger.error("hello error: {}", e.getMessage(), e);
 			}
