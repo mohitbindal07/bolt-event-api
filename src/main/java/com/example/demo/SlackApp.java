@@ -290,7 +290,7 @@ public class SlackApp {
 			return ctx.ack();
 		});
 
-		String regex2 = "+assigned+";
+		String regex2 = "assigned";
 		Pattern pattern2 = Pattern.compile(regex2);
 		app.message(pattern2, (req, ctx) -> {
 			logger.info("message event hello executed with text value {} and type of event {}",
