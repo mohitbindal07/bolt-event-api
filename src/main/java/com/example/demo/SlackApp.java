@@ -85,7 +85,7 @@ public class SlackApp {
 									.token(ctx.getBotToken())
 									// Payload message should be posted in the channel where original message was
 									// heard
-									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+jira.getTitle()+ " and severity is "+jira.getSeverity()));
+									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+""+jira.getTitle()+""+ " and severity is "+""+jira.getSeverity()+""));
 						}
 					}
 					
@@ -140,6 +140,7 @@ public class SlackApp {
 								// Payload message should be posted in the channel where original message was
 								// heard
 								.channel(event.getChannel()).text("The status of workorder "+workorderId +" is "+workOrderStatus));
+						return ctx.ack();
 					}
 					if(isWorkOrderAssigned(payload.getEvent().getText())) {
 						logger.info("inside work order assigned block");
@@ -150,6 +151,7 @@ public class SlackApp {
 										// Payload message should be posted in the channel where original message was
 										// heard
 										.channel(event.getChannel()).text("workorder assigned to "+workOrderAssigned));
+								return ctx.ack();
 					}
 					if(isWorkOrderLength(payload.getEvent().getText())) {
 						List<String> lengths =getWorkOrderLength(workorderId);
@@ -159,6 +161,7 @@ public class SlackApp {
 										// Payload message should be posted in the channel where original message was
 										// heard
 										.channel(event.getChannel()).text("length of each cable in this workorder are FQN1 : "+lengths.get(0)+", FQN2 : "+lengths.get(1)+ ", FQN3 : "+lengths.get(2)+", FQN4 : "+lengths.get(3)));
+								return ctx.ack();
 					}
 					if(isWorkOrderMilestone(payload.getEvent().getText())) {
 						List<String> milestones =getWorkOrderMilestone(workorderId);
@@ -168,6 +171,7 @@ public class SlackApp {
 										// Payload message should be posted in the channel where original message was
 										// heard
 										.channel(event.getChannel()).text("milestone of each cable in this workorder are FQN1 : "+milestones.get(0)+", FQN2 : "+milestones.get(1)+ ", FQN3 : "+milestones.get(2)+", FQN4 : "+milestones.get(3)));
+								return ctx.ack();
 					}
 					map.clear();
 				}
@@ -221,7 +225,7 @@ public class SlackApp {
 									.token(ctx.getBotToken())
 									// Payload message should be posted in the channel where original message was
 									// heard
-									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+jira.getTitle()+ " and severity is "+jira.getSeverity()));
+									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+""+jira.getTitle()+ ""+" and severity is "+""+jira.getSeverity()+""));
 						}
 					}
 					
@@ -277,6 +281,7 @@ public class SlackApp {
 								// heard
 								.channel(event.getChannel())
 								.text("The status of workorder " + workorderId2 + " is " + workOrderStatus));
+						return ctx.ack();
 					}
 					if (isWorkOrderAssigned(text)) {
 						logger.info("message event pattern executed work order command assigned");
@@ -287,6 +292,7 @@ public class SlackApp {
 								// Payload message should be posted in the channel where original message was
 								// heard
 								.channel(event.getChannel()).text("workorder assigned to " + workOrderAssigned));
+						return ctx.ack();
 					}
 					if (isWorkOrderLength(text)) {
 						logger.info("message event pattern executed work order command length");
@@ -300,6 +306,7 @@ public class SlackApp {
 								.text("length of each cable in this workorder are FQN1 : " + lengths.get(0)
 										+ ", FQN2 : " + lengths.get(1) + ", FQN3 : " + lengths.get(2) + ", FQN4 : "
 										+ lengths.get(3)));
+						return ctx.ack();
 					}
 					if (isWorkOrderMilestone(text)) {
 						logger.info("message event pattern executed work order command milestone");
@@ -313,6 +320,7 @@ public class SlackApp {
 								.text("milestone of each cable in this workorder are FQN1 : " + milestones.get(0)
 										+ ", FQN2 : " + milestones.get(1) + ", FQN3 : " + milestones.get(2)
 										+ ", FQN4 : " + milestones.get(3)));
+						return ctx.ack();
 					}
 					map2.clear();
 				}
@@ -343,7 +351,7 @@ public class SlackApp {
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
 		for (String coreLabel : coreLabels) {
-			if (coreLabel.trim().equalsIgnoreCase("whom")
+			if (coreLabel.trim().equalsIgnoreCase("whom")||coreLabel.trim().equalsIgnoreCase("who")||coreLabel.trim().equalsIgnoreCase("aligned")
 					|| coreLabel.trim().equalsIgnoreCase("assigned")) {
 				return true;
 			}
@@ -357,7 +365,7 @@ public class SlackApp {
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
 		for (String coreLabel : coreLabels) {
-			if (coreLabel.trim().equalsIgnoreCase("cable")
+			if (coreLabel.trim().equalsIgnoreCase("cable")||coreLabel.trim().equalsIgnoreCase("length")
 					|| coreLabel.trim().equalsIgnoreCase("miles")) {
 				return true;
 			}
@@ -371,7 +379,7 @@ public class SlackApp {
 		List<String> coreLabels= Arrays.asList(strings);
 		//List<CoreLabel> coreLabels = getAllToken(text);
 		for (String coreLabel : coreLabels) {
-			if (coreLabel.equalsIgnoreCase("milestone")
+			if (coreLabel.equalsIgnoreCase("milestone")||coreLabel.equalsIgnoreCase("target")
 					|| coreLabel.equalsIgnoreCase("milestones")) {
 				return true;
 			}
