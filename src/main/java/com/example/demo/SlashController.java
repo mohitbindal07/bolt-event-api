@@ -92,7 +92,7 @@ public class SlashController {
         	}else {
         		map.put("meeting-dur", extractDuration(text));
         	}
-        	response.setText("Your meeting has been schduled from "+map.get("meeting-time") + " for " + map.get("meeting-dur") + " minutes");
+        	response.setText("Your meeting has been scheduled from "+map.get("meeting-time") + " for " + map.get("meeting-dur") + " minutes");
         	map.clear();
     		return response;
     	}

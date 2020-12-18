@@ -65,7 +65,7 @@ public class SlackApp {
 							// heard
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
-				    				+ "2. work order status"));
+				    				+ "2. Work order status"));
 		    		map.clear();
 		    		isCompleted =true;
 		    		return ctx.ack();
@@ -85,7 +85,7 @@ public class SlackApp {
 									.token(ctx.getBotToken())
 									// Payload message should be posted in the channel where original message was
 									// heard
-									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+""+jira.getTitle()+""+ " and severity is "+""+jira.getSeverity()+""));
+									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+"'"+jira.getTitle()+"'"+ " and severity is "+"'"+jira.getSeverity()+"'"));
 						}
 					}
 					
@@ -202,7 +202,7 @@ public class SlackApp {
 							// heard
 							.channel(event.getChannel()).text("How can I help you today,\n"
 				    				+ "1. Issue/Ticket tracking\n"
-				    				+ "2. work order status"));
+				    				+ "2. Work order status"));
 					map2.clear();
 					isCompleted2 = true;
 					//return ctx.ack();
@@ -225,7 +225,7 @@ public class SlackApp {
 									.token(ctx.getBotToken())
 									// Payload message should be posted in the channel where original message was
 									// heard
-									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+""+jira.getTitle()+ ""+" and severity is "+""+jira.getSeverity()+""));
+									.channel(event.getChannel()).text("The jira ticket #" +jira.getJiraId()+" the title is "+"'"+jira.getTitle()+ "'"+" and severity is "+"'"+jira.getSeverity()+"'"));
 						}
 					}
 					
