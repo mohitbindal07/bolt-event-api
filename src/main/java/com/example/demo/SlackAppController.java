@@ -10,4 +10,12 @@ public class SlackAppController extends SlackAppServlet {
     public SlackAppController(App app) {
         super(app);
     }
+    
+	/*
+	 * public static void main(String[] args) {
+	 * 
+	 * String str = "abc # xyz # low"; String [] words = str.split("#");
+	 * 
+	 * for(String w: words) { System.out.println(w); } }
+	 */
 }
