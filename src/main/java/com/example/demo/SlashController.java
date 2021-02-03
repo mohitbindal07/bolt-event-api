@@ -7,7 +7,10 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +23,15 @@ public class SlashController {
 			  LoggerFactory.getLogger(SlashController.class);
 	
 	static Map<String,String> map = new HashMap<>();
+	
+	 @RequestMapping(value = "/slack/events",
+	            method = RequestMethod.POST,
+	            consumes = MediaType.APPLICATION_JSON_VALUE)
+	    public ResponseEntity<String> slackEventAPIAuth(@RequestBody SlackEventPayload request) {
+		 System.out.println("The json payload containing challenge : '{}' '"+ request.getChallenge());
+		 System.out.println("The complete json payload  : '{}' '"+ request);
+		 return new ResponseEntity<String>("challenge :"+request.getChallenge(), HttpStatus.OK);
+	 }
 	
     @RequestMapping(value = "/slack/slash",
             method = RequestMethod.POST,
