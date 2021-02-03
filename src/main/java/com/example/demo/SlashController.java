@@ -29,7 +29,14 @@ public class SlashController {
 	            consumes = MediaType.APPLICATION_JSON_VALUE)
 	    public ResponseEntity<String> slackEventAPIAuth(@RequestBody SlackEventPayload request) {
 		 System.out.println("The json payload containing challenge : '{}' '"+ request.getChallenge());
-		 System.out.println("The complete json payload  : '{}' '"+ request);
+
+		 if(request.getType().equals("url_verification")) {
+			 System.out.println("The json payload type is url_verification ? : '{}' '"+ request.getType());
+			 return new ResponseEntity<String>("challenge :"+request.getChallenge(), HttpStatus.OK);
+		 }else if(request.getType().equals("event_callback")) {
+			 System.out.println("The json payload type is event_verification ? : '{}' '"+ request.getType());
+			 return new ResponseEntity<String>("event callback", HttpStatus.OK);
+		 }
 		 return new ResponseEntity<String>("challenge :"+request.getChallenge(), HttpStatus.OK);
 	 }
 	
