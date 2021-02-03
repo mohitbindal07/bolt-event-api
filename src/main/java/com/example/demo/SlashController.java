@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 
 @RestController
 public class SlashController {
@@ -27,17 +29,21 @@ public class SlashController {
 	 @RequestMapping(value = "/slack/events",
 	            method = RequestMethod.POST,
 	            consumes = MediaType.APPLICATION_JSON_VALUE)
-	    public ResponseEntity<String> slackEventAPIAuth(@RequestBody SlackEventPayload request) {
-		 System.out.println("The json payload containing challenge : '{}' '"+ request.getChallenge());
-
-		 if(request.getType().equals("url_verification")) {
-			 System.out.println("The json payload type is url_verification ? : '{}' '"+ request.getType());
-			 return new ResponseEntity<String>("challenge :"+request.getChallenge(), HttpStatus.OK);
-		 }else if(request.getType().equals("event_callback")) {
-			 System.out.println("The json payload type is event_verification ? : '{}' '"+ request.getType());
+	    public ResponseEntity<String> slackEventAPIAuth(String request) {
+		 DocumentContext dc = JsonPath.parse(request);
+		 System.out.println("The json payload containing challenge : '{}' '"+ dc.read("$.challenge"));
+		 
+		 
+		 if(dc.read("$.type").equals("url_verification")) {
+			 System.out.println("The json payload type is url_verification ? : '{}' '"+ dc.read("$.type"));
+			 return new ResponseEntity<String>("challenge :"+dc.read("$.challenge"), HttpStatus.OK);
+		 }else if(dc.read("$.type").equals("event_callback")) {
+			 System.out.println("The json payload type is event_verification ? : '{}' '"+ dc.read("$.type"));
+			 System.out.println("the text entered is : "+  dc.read("$.event.text"));
+			 System.out.println("the user  is : "+  dc.read("$.event.user"));
 			 return new ResponseEntity<String>("event callback", HttpStatus.OK);
 		 }
-		 return new ResponseEntity<String>("challenge :"+request.getChallenge(), HttpStatus.OK);
+		 return new ResponseEntity<String>("challenge :"+dc.read("$.challenge"), HttpStatus.OK);
 	 }
 	
     @RequestMapping(value = "/slack/slash",
