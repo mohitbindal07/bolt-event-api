@@ -19,7 +19,7 @@ public class SlackAppController extends SlackAppServlet {
         super(app);
     }
     
-    @RequestMapping(value = "/",
+   /* @RequestMapping(value = "/",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> slackEventAPIAuth(String request) {
@@ -38,7 +38,7 @@ public class SlackAppController extends SlackAppServlet {
 	 }
 	 return new ResponseEntity<String>("challenge :"+dc.read("$.challenge"), HttpStatus.OK);
  }
-    
+    */
 	/*
 	 * public static void main(String[] args) {
 	 * 
